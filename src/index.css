@@ -1,6 +1,9 @@
 body {
   margin: 0;
   font-family: 'Comfortaa';
+  background-image: url('./assests/photo-1523821741446-edb2b68bb7a0.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
 code {

@@ -1,5 +1,6 @@
 import React from 'react';
 import Weather from './components/Weather';
+import Form from './components/Form';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'weather-icons/css/weather-icons.css';
 import './App.css';
@@ -21,7 +22,7 @@ class App extends React.Component{
       error:false,
       description:"",
     };
-    this.getWetaher();
+
     this.weatherIcon=
     {
       Thunderstorm:"wi-thunderstorm",
@@ -39,28 +40,70 @@ class App extends React.Component{
     return cell;
   }
 
-  getWetaher=async()=>
+  get_WeatherIcon(icons,rangeId)
   {
-    const api_call=await fetch(`http://api.openweathermap.org/data/2.5/weather?q=London,uk&appid=${api_key}`);
+    switch(true)
+    {
+      case rangeId>=200 && rangeId <=230:
+        this.setState({weatherIcon:this.weatherIcon.Thunderstorm});
+        break;
+        case rangeId>=300 && rangeId <=321:
+        this.setState({weatherIcon:this.weatherIcon.Drizzle});
+        break;
+        case rangeId>=500 && rangeId <=531:
+        this.setState({weatherIcon:this.weatherIcon.Rain});
+        break;
+        case rangeId>=600 && rangeId <=622:
+        this.setState({weatherIcon:this.weatherIcon.Snow});
+        break;
+        case rangeId>=701 && rangeId <=781:
+        this.setState({weatherIcon:this.weatherIcon.Atmosphere});
+        break;
+        case rangeId===800:
+        this.setState({weatherIcon:this.weatherIcon.Clear});
+        break;
+        case rangeId>=801 && rangeId <=804:
+        this.setState({weatherIcon:this.weatherIcon.Clouds});
+        break;
+        default:
+          this.setState({weatherIcon:this.weatherIcon.Clouds});
+    }
+  }
+
+  getWeather=async(e)=>
+  {
+    e.preventDefault();
+
+    const city=e.target.elements.city.value;
+    const country=e.target.elements.country.value;
+
+    if(city && country)
+    {
+      const api_call=await fetch(`http://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${api_key}`);
     const response=await api_call.json();
     console.log(response);
     this.setState({
 
-      city:response.name,
-      country:response.sys.country,
+      city:`${response.name},${response.sys.country}`,
       temp_celsius:this.calcelsius(response.main.temp),
       minTem:this.calcelsius(response.main.temp_min),
       maxTem:this.calcelsius(response.main.temp_max),
-      description:response.weather[0].description,
-      weatherIcon:this.weatherIcon.Thunderstorm
-
+      description:response.weather[0].description
+      // weatherIcon:this.weatherIcon.Thunderstorm
     });
+
+    this.get_WeatherIcon(this.weatherIcon,response.weather[0].id);
+    }else{
+      this.setState({error:true});
+    }
+  
   };
   
   render()
   {
     return(
       <div className="App">
+        <Form loadweather={this.getWeather} error={this.state.error}/>
       <Weather  
       city={this.state.city} 
       country={this.state.country}
